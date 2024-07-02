@@ -38,11 +38,11 @@ class PostController extends Controller
     public function update(Request $request, Post $post): JsonResponse
     {
         $validated = $request->validate([
-            'user_id' => 'required|integer',
-            'category_id' => 'required|integer',
-            'title' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:posts,slug,' . $post->id,
-            'content' => 'required|string',
+            'user_id' => 'integer',
+            'category_id' => 'integer',
+            'title' => 'string|max:255',
+            'slug' => 'string|max:255|unique:posts,slug,' . $post->id,
+            'content' => 'string',
         ]);
 
         $post->update($validated);
