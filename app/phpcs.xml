@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<ruleset name="Post Service">
+    <description>Custom rules for Post Service</description>
+
+    <file>app</file>
+    <file>config</file>
+    <file>database</file>
+    <file>resources</file>
+    <file>routes</file>
+    <file>tests</file>
+
+    <rule ref="PSR12"/>
+
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="120"/>
+            <property name="absoluteLineLimit" value="0"/>
+            <property name="ignoreComments" value="true"/>
+        </properties>
+    </rule>
+</ruleset>
