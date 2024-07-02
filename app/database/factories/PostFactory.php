@@ -15,7 +15,7 @@ class PostFactory extends Factory
 {
     protected $model = Post::class;
 
-    private int $userIdCounter = 1;
+    private int $userIdCounter     = 1;
     private int $categoryIdCounter = 1;
 
     /**
@@ -24,20 +24,20 @@ class PostFactory extends Factory
      * @return array<string, mixed>
      */
     #[ArrayShape([
-        'user_id' => 'int',
-        'title' => 'string',
-        'slug' => 'string',
-        'content' => 'string',
+        'user_id'     => 'int',
+        'title'       => 'string',
+        'slug'        => 'string',
+        'content'     => 'string',
         'category_id' => 'int',
     ])] public function definition(): array
     {
         $title = $this->faker->word;
 
         return [
-            'user_id' => $this->userIdCounter++,
-            'title' => $title,
-            'slug' => $title,
-            'content' => $this->faker->text,
+            'user_id'     => $this->userIdCounter++,
+            'title'       => $title,
+            'slug'        => $title,
+            'content'     => $this->faker->text,
             'category_id' => $this->categoryIdCounter++,
         ];
     }
