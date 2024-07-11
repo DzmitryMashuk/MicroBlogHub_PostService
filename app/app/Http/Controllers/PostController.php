@@ -7,12 +7,22 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class PostController extends Controller
 {
     public function index(): JsonResponse
     {
-        return response()->json(Post::all());
+        $posts = Redis::get(config('redis_keys.posts'));
+
+        if (!$posts) {
+            $posts = Post::all();
+            Redis::set(config('redis_keys.posts'), $posts->toJson(), 3600);
+        } else {
+            $posts = json_decode($posts, true);
+        }
+
+        return response()->json($posts);
     }
 
     public function store(Request $request): JsonResponse
@@ -26,6 +36,8 @@ class PostController extends Controller
         ]);
 
         $post = Post::create($validated);
+
+        Redis::del(config('redis_keys.posts'));
 
         return response()->json($post, 201);
     }
@@ -47,12 +59,16 @@ class PostController extends Controller
 
         $post->update($validated);
 
+        Redis::del(config('redis_keys.posts'));
+
         return response()->json($post);
     }
 
     public function destroy(Post $post): JsonResponse
     {
         $post->delete();
+
+        Redis::del(config('redis_keys.posts'));
 
         return response()->json(['message' => 'Success removed'], 204);
     }

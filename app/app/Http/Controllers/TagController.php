@@ -7,12 +7,22 @@ namespace App\Http\Controllers;
 use App\Models\Tag;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class TagController extends Controller
 {
     public function index(): JsonResponse
     {
-        return response()->json(Tag::all());
+        $tags = Redis::get(config('redis_keys.tags'));
+
+        if (!$tags) {
+            $tags = Tag::all();
+            Redis::set(config('redis_keys.tags'), $tags->toJson(), 3600);
+        } else {
+            $tags = json_decode($tags, true);
+        }
+
+        return response()->json($tags);
     }
 
     public function store(Request $request): JsonResponse
@@ -22,6 +32,8 @@ class TagController extends Controller
         ]);
 
         $tag = Tag::create($validated);
+
+        Redis::del(config('redis_keys.tags'));
 
         return response()->json($tag, 201);
     }
@@ -39,12 +51,16 @@ class TagController extends Controller
 
         $tag->update($validated);
 
+        Redis::del(config('redis_keys.tags'));
+
         return response()->json($tag);
     }
 
     public function destroy(Tag $tag): JsonResponse
     {
         $tag->delete();
+
+        Redis::del(config('redis_keys.tags'));
 
         return response()->json(['message' => 'Success removed'], 204);
     }

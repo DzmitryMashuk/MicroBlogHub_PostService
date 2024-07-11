@@ -7,12 +7,22 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class CategoryController extends Controller
 {
     public function index(): JsonResponse
     {
-        return response()->json(Category::all());
+        $categories = Redis::get(config('redis_keys.categories'));
+
+        if (!$categories) {
+            $categories = Category::all();
+            Redis::set(config('redis_keys.categories'), $categories->toJson(), 3600);
+        } else {
+            $categories = json_decode($categories, true);
+        }
+
+        return response()->json($categories);
     }
 
     public function store(Request $request): JsonResponse
@@ -22,6 +32,8 @@ class CategoryController extends Controller
         ]);
 
         $category = Category::create($validated);
+
+        Redis::del(config('redis_keys.categories'));
 
         return response()->json($category, 201);
     }
@@ -39,12 +51,16 @@ class CategoryController extends Controller
 
         $category->update($validated);
 
+        Redis::del(config('redis_keys.categories'));
+
         return response()->json($category);
     }
 
     public function destroy(Category $category): JsonResponse
     {
         $category->delete();
+
+        Redis::del(config('redis_keys.categories'));
 
         return response()->json(['message' => 'Success removed'], 204);
     }
