@@ -4,64 +4,52 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
+use App\Application\Services\CategoryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redis;
 
 class CategoryController extends Controller
 {
+    public function __construct(protected CategoryService $categoryService)
+    {
+    }
+
     public function index(): JsonResponse
     {
-        $categories = Redis::get(config('redis_keys.categories'));
-
-        if (!$categories) {
-            $categories = Category::all();
-            Redis::set(config('redis_keys.categories'), $categories->toJson(), 3600);
-        } else {
-            $categories = json_decode($categories, true);
-        }
-
-        return response()->json($categories);
+        return response()->json($this->categoryService->getAll());
     }
 
     public function store(Request $request): JsonResponse
     {
-        $validated = $request->validate([
+        $data = $request->validate([
             'name' => 'required|string|max:255|unique:categories,name',
         ]);
 
-        $category = Category::create($validated);
-
-        Redis::del(config('redis_keys.categories'));
+        $category = $this->categoryService->create($data);
 
         return response()->json($category, 201);
     }
 
-    public function show(Category $category): JsonResponse
+    public function show(int $id): JsonResponse
     {
-        return response()->json($category);
+        return response()->json($this->categoryService->getById($id));
     }
 
-    public function update(Request $request, Category $category): JsonResponse
+    public function update(Request $request, int $id): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
+        $data = $request->validate([
+            'name' => 'required|string|max:255|unique:categories,name,' . $id,
         ]);
 
-        $category->update($validated);
-
-        Redis::del(config('redis_keys.categories'));
+        $category = $this->categoryService->update($id, $data);
 
         return response()->json($category);
     }
 
-    public function destroy(Category $category): JsonResponse
+    public function destroy(int $id): JsonResponse
     {
-        $category->delete();
+        $this->categoryService->delete($id);
 
-        Redis::del(config('redis_keys.categories'));
-
-        return response()->json(['message' => 'Success removed'], 204);
+        return response()->json(null, 204);
     }
 }
