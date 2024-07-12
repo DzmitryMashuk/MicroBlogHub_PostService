@@ -22,7 +22,7 @@ class GetByIdCommandTest extends TestCase
         $this->getByIdCommand = new GetByIdCommand($this->postRepository);
     }
 
-    public function testExecuteReturnsPostDto()
+    public function testExecuteReturnsPostDto(): void
     {
         $postId = 1;
 
@@ -54,7 +54,7 @@ class GetByIdCommandTest extends TestCase
         $this->assertEquals($post->updatedAt, $result->updatedAt);
     }
 
-    public function testExecuteThrowsExceptionWhenPostNotFound()
+    public function testExecuteThrowsExceptionIfPostNotFound(): void
     {
         $this->expectException(\Exception::class);
 

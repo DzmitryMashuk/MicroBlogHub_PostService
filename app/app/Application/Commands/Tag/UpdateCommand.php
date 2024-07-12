@@ -17,6 +17,11 @@ class UpdateCommand
     public function execute(int $id, array $data): TagDTO
     {
         $tag = $this->tagRepository->getById($id);
+
+        if (!$tag) {
+            throw new \Exception('Tag not found');
+        }
+
         $this->tagRepository->update($tag, $data);
 
         Redis::del(config('redis_keys.tags'));

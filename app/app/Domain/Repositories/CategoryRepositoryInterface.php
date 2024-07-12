@@ -13,7 +13,7 @@ interface CategoryRepositoryInterface
      */
     public function getAll(): array;
 
-    public function getById(int $id): Category;
+    public function getById(int $id): ?Category;
 
     public function create(array $data): Category;
 

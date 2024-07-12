@@ -13,7 +13,7 @@ interface PostRepositoryInterface
      */
     public function getAll(): array;
 
-    public function getById(int $id): Post;
+    public function getById(int $id): ?Post;
 
     public function create(array $data): Post;
 

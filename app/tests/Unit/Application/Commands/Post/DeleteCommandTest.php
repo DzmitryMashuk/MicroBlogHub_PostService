@@ -21,7 +21,7 @@ class DeleteCommandTest extends TestCase
         $this->deleteCommand  = new DeleteCommand($this->postRepository);
     }
 
-    public function testExecuteDeletesPostAndClearsCache()
+    public function testExecuteDeletesPostAndClearsCache(): void
     {
         $postId = 1;
 
@@ -36,7 +36,7 @@ class DeleteCommandTest extends TestCase
         $this->deleteCommand->execute($postId);
     }
 
-    public function testExecuteDoesNotThrowExceptionOnNonExistentPost()
+    public function testExecuteDoesNotThrowExceptionOnNonExistentPost(): void
     {
         $postId = PHP_INT_MAX;
 

@@ -14,7 +14,7 @@ class PostRepository implements PostRepositoryInterface
         return Post::all()->toArray();
     }
 
-    public function getById(int $id): Post
+    public function getById(int $id): ?Post
     {
         return Post::find($id);
     }

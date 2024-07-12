@@ -17,6 +17,10 @@ class GetByIdCommand
     {
         $post = $this->postRepository->getById($id);
 
+        if (!$post) {
+            throw new \Exception('Post not found');
+        }
+
         return new PostDTO(
             $post->id,
             $post->userId,

@@ -23,7 +23,7 @@ class UpdateCommandTest extends TestCase
         $this->updateCommand  = new UpdateCommand($this->postRepository);
     }
 
-    public function testExecuteUpdatesPostAndReturnsPostDto()
+    public function testExecuteUpdatesPostAndReturnsPostDto(): void
     {
         $postId     = 1;
         $updateData = [
@@ -74,7 +74,7 @@ class UpdateCommandTest extends TestCase
         $this->assertEquals($post->updatedAt, $result->updatedAt);
     }
 
-    public function testExecuteThrowsExceptionWhenPostNotFound()
+    public function testExecuteThrowsExceptionWhenPostNotFound(): void
     {
         $this->expectException(\Exception::class);
 

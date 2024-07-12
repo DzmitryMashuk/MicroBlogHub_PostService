@@ -17,6 +17,10 @@ class GetByIdCommand
     {
         $tag = $this->tagRepository->getById($id);
 
+        if (!$tag) {
+            throw new \Exception('Tag not found');
+        }
+
         return new TagDTO(
             $tag->id,
             $tag->name,

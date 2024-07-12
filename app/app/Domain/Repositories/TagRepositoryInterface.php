@@ -13,7 +13,7 @@ interface TagRepositoryInterface
      */
     public function getAll(): array;
 
-    public function getById(int $id): Tag;
+    public function getById(int $id): ?Tag;
 
     public function create(array $data): Tag;
 

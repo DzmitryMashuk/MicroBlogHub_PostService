@@ -17,6 +17,11 @@ class UpdateCommand
     public function execute(int $id, array $data): PostDTO
     {
         $post = $this->postRepository->getById($id);
+
+        if (!$post) {
+            throw new \Exception('Post not found');
+        }
+
         $this->postRepository->update($post, $data);
 
         Redis::del(config('redis_keys.posts'));

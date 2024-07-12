@@ -17,6 +17,11 @@ class UpdateCommand
     public function execute(int $id, array $data): CategoryDTO
     {
         $category = $this->categoryRepository->getById($id);
+
+        if (!$category) {
+            throw new \Exception('Category not found');
+        }
+
         $this->categoryRepository->update($category, $data);
 
         Redis::del(config('redis_keys.categories'));

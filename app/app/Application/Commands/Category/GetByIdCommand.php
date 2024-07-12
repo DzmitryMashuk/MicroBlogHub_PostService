@@ -17,6 +17,10 @@ class GetByIdCommand
     {
         $category = $this->categoryRepository->getById($id);
 
+        if (!$category) {
+            throw new \Exception('Category not found');
+        }
+
         return new CategoryDTO(
             $category->id,
             $category->name,

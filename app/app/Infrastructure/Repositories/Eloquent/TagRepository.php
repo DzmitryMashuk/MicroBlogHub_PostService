@@ -14,7 +14,7 @@ class TagRepository implements TagRepositoryInterface
         return Tag::all()->toArray();
     }
 
-    public function getById(int $id): Tag
+    public function getById(int $id): ?Tag
     {
         return Tag::find($id);
     }

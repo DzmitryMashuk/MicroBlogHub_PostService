@@ -23,7 +23,7 @@ class CreateCommandTest extends TestCase
         $this->createCommand  = new CreateCommand($this->postRepository);
     }
 
-    public function testExecuteCreatesPostAndReturnsPostDto()
+    public function testExecuteCreatesPostAndReturnsPostDto(): void
     {
         $postData = [
             'userId'     => 1,
