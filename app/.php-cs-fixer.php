@@ -19,6 +19,7 @@ return (new PhpCsFixer\Config())
         'array_syntax' => ['syntax' => 'short'],
         'binary_operator_spaces' => [
             'default' => 'align_single_space',
+            'operators' => ['??' => 'single_space'],
         ],
         'no_unused_imports' => true,
     ])

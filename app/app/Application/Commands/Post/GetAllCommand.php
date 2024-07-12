@@ -7,7 +7,6 @@ namespace App\Application\Commands\Post;
 use App\Application\DTOs\Post\PostListDTO;
 use App\Domain\Repositories\PostRepositoryInterface;
 use Illuminate\Support\Facades\Redis;
-use function config;
 
 class GetAllCommand
 {
