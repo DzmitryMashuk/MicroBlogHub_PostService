@@ -20,4 +20,14 @@ class Tag extends Model
     {
         return $this->belongsToMany(Post::class, 'post_tags');
     }
+
+    public function getCreatedAtAttribute(): ?string
+    {
+        return $this->attributes['created_at'] ?? null;
+    }
+
+    public function getUpdatedAtAttribute(): ?string
+    {
+        return $this->attributes['updated_at'] ?? null;
+    }
 }

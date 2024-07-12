@@ -15,13 +15,13 @@ class GetByIdCommand
 
     public function execute(int $id): CategoryDTO
     {
-        $categories = $this->categoryRepository->getById($id);
+        $category = $this->categoryRepository->getById($id);
 
         return new CategoryDTO(
-            $categories->id,
-            $categories->name,
-            $categories->createdAt,
-            $categories->updatedAt
+            $category->id,
+            $category->name,
+            $category->createdAt,
+            $category->updatedAt
         );
     }
 }

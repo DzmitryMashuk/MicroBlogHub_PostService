@@ -24,7 +24,7 @@ class CreateCommand
             $tag->id,
             $tag->name,
             $tag->createdAt,
-            $tag->updatedAt,
+            $tag->updatedAt
         );
     }
 }

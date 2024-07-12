@@ -19,7 +19,7 @@ class GetAllCommand
         $tags = Redis::get(config('redis_keys.tags'));
 
         if ($tags) {
-            return TagListDTO::fromArray(json_decode($tags));
+            return TagListDTO::fromArray(json_decode($tags, true));
         }
 
         $tags = $this->tagRepository->getAll();

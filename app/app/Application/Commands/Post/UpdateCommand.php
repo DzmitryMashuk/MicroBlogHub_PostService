@@ -29,7 +29,7 @@ class UpdateCommand
             $post->content,
             $post->categoryId,
             $post->createdAt,
-            $post->updatedAt,
+            $post->updatedAt
         );
     }
 }

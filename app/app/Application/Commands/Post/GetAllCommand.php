@@ -19,7 +19,7 @@ class GetAllCommand
         $posts = Redis::get(config('redis_keys.posts'));
 
         if ($posts) {
-            return PostListDTO::fromArray(json_decode($posts));
+            return PostListDTO::fromArray(json_decode($posts, true));
         }
 
         $posts = $this->postRepository->getAll();

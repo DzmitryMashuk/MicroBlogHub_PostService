@@ -19,7 +19,7 @@ class GetAllCommand
         $categories = Redis::get(config('redis_keys.categories'));
 
         if ($categories) {
-            return CategoryListDTO::fromArray(json_decode($categories));
+            return CategoryListDTO::fromArray(json_decode($categories, true));
         }
 
         $categories = $this->categoryRepository->getAll();

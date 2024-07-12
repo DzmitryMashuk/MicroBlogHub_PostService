@@ -20,4 +20,14 @@ class Category extends Model
     {
         return $this->hasMany(Post::class);
     }
+
+    public function getCreatedAtAttribute(): ?string
+    {
+        return $this->attributes['created_at'] ?? null;
+    }
+
+    public function getUpdatedAtAttribute(): ?string
+    {
+        return $this->attributes['updated_at'] ?? null;
+    }
 }

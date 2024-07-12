@@ -24,7 +24,7 @@ class CreateCommand
             $category->id,
             $category->name,
             $category->createdAt,
-            $category->updatedAt,
+            $category->updatedAt
         );
     }
 }

@@ -30,4 +30,34 @@ class Post extends Model
     {
         return $this->belongsToMany(Tag::class, 'post_tags');
     }
+
+    public function getUserIdAttribute(): int
+    {
+        return $this->attributes['user_id'];
+    }
+
+    public function setUserIdAttribute($value): void
+    {
+        $this->attributes['user_id'] = $value;
+    }
+
+    public function getCategoryIdAttribute(): int
+    {
+        return $this->attributes['category_id'];
+    }
+
+    public function setCategoryIdAttribute($value): void
+    {
+        $this->attributes['category_id'] = $value;
+    }
+
+    public function getCreatedAtAttribute(): ?string
+    {
+        return $this->attributes['created_at'] ?? null;
+    }
+
+    public function getUpdatedAtAttribute(): ?string
+    {
+        return $this->attributes['updated_at'] ?? null;
+    }
 }

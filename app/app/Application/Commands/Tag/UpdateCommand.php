@@ -25,7 +25,7 @@ class UpdateCommand
             $tag->id,
             $tag->name,
             $tag->createdAt,
-            $tag->updatedAt,
+            $tag->updatedAt
         );
     }
 }
