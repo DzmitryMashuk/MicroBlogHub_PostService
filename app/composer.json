@@ -55,7 +55,7 @@
         "php-cs-fixer:fix": "vendor/bin/php-cs-fixer fix",
         "php-code-sniffer:diff": "vendor/bin/phpcs",
         "php-code-sniffer:fix": "vendor/bin/phpcbf",
-        "phpstan": "vendor/bin/phpstan analyse"
+        "phpstan": "vendor/bin/phpstan analyse --memory-limit=512M"
     },
     "extra": {
         "laravel": {

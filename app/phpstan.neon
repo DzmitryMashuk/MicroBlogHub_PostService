@@ -6,4 +6,3 @@ parameters:
         - database
         - resources
         - routes
-        - tests
