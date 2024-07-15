@@ -7,19 +7,21 @@ namespace Tests\Unit\Application\Commands\Post;
 use App\Application\Commands\Post\GetAllCommand;
 use App\Application\DTOs\Post\PostListDTO;
 use App\Domain\Repositories\PostRepositoryInterface;
-use Illuminate\Support\Facades\Redis;
+use App\Infrastructure\Services\RedisCacheService;
 use Tests\TestCase;
 
 class GetAllCommandTest extends TestCase
 {
     private PostRepositoryInterface $postRepository;
+    private RedisCacheService $redisCacheService;
     private GetAllCommand $getAllCommand;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->postRepository = $this->createMock(PostRepositoryInterface::class);
-        $this->getAllCommand  = new GetAllCommand($this->postRepository);
+        $this->postRepository    = $this->createMock(PostRepositoryInterface::class);
+        $this->redisCacheService = $this->createMock(RedisCacheService::class);
+        $this->getAllCommand     = new GetAllCommand($this->postRepository, $this->redisCacheService);
     }
 
     public function testExecuteReturnsCachedPosts(): void
@@ -41,10 +43,9 @@ class GetAllCommandTest extends TestCase
             ],
         ]);
 
-        Redis::shouldReceive('get')
-            ->once()
+        $this->redisCacheService->method('get')
             ->with(config('redis_keys.posts'))
-            ->andReturn($cachedPosts);
+            ->willReturn($cachedPosts);
 
         $result = $this->getAllCommand->execute();
 
@@ -73,14 +74,16 @@ class GetAllCommandTest extends TestCase
             ],
         ];
 
-        Redis::shouldReceive('get')
-            ->once()
+        $this->redisCacheService->method('get')
             ->with(config('redis_keys.posts'))
-            ->andReturn(null);
+            ->willReturn(null);
 
-        Redis::shouldReceive('set')
-            ->once()
-            ->with(config('redis_keys.posts'), json_encode($posts));
+        $this->redisCacheService->expects($this->once())
+            ->method('set')
+            ->with(
+                config('redis_keys.posts'),
+                json_encode($posts)
+            );
 
         $this->postRepository->expects($this->once())
             ->method('getAll')

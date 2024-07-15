@@ -6,12 +6,14 @@ namespace App\Application\Commands\Post;
 
 use App\Application\DTOs\Post\PostDTO;
 use App\Domain\Repositories\PostRepositoryInterface;
-use Illuminate\Support\Facades\Redis;
+use App\Infrastructure\Services\RedisCacheService;
 
 class UpdateCommand
 {
-    public function __construct(private PostRepositoryInterface $postRepository)
-    {
+    public function __construct(
+        private PostRepositoryInterface $postRepository,
+        private RedisCacheService $redisCacheService
+    ) {
     }
 
     public function execute(int $id, array $data): PostDTO
@@ -24,7 +26,7 @@ class UpdateCommand
 
         $this->postRepository->update($post, $data);
 
-        Redis::del(config('redis_keys.posts'));
+        $this->redisCacheService->delete(config('redis_keys.posts'));
 
         return new PostDTO(
             $post->id,

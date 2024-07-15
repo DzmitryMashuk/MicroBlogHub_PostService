@@ -8,19 +8,21 @@ use App\Application\Commands\Category\CreateCommand;
 use App\Application\DTOs\Category\CategoryDTO;
 use App\Domain\Models\Category;
 use App\Domain\Repositories\CategoryRepositoryInterface;
-use Illuminate\Support\Facades\Redis;
+use App\Infrastructure\Services\RedisCacheService;
 use Tests\TestCase;
 
 class CreateCommandTest extends TestCase
 {
     private CategoryRepositoryInterface $categoryRepository;
+    private RedisCacheService $redisCacheService;
     private CreateCommand $createCommand;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->categoryRepository = $this->createMock(CategoryRepositoryInterface::class);
-        $this->createCommand      = new CreateCommand($this->categoryRepository);
+        $this->redisCacheService  = $this->createMock(RedisCacheService::class);
+        $this->createCommand      = new CreateCommand($this->categoryRepository, $this->redisCacheService);
     }
 
     public function testExecuteCreatesCategoryAndReturnsCategoryDto(): void
@@ -40,9 +42,9 @@ class CreateCommandTest extends TestCase
             ->with($data)
             ->willReturn($category);
 
-        Redis::shouldReceive('del')
-            ->once()
-            ->with(config('redis_keys.categories'));
+        $this->redisCacheService->expects($this->once())
+            ->method('delete')
+            ->with($this->equalTo(config('redis_keys.categories')));
 
         $result = $this->createCommand->execute($data);
 

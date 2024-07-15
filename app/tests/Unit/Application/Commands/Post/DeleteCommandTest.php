@@ -6,19 +6,21 @@ namespace Tests\Unit\Application\Commands\Post;
 
 use App\Application\Commands\Post\DeleteCommand;
 use App\Domain\Repositories\PostRepositoryInterface;
-use Illuminate\Support\Facades\Redis;
+use App\Infrastructure\Services\RedisCacheService;
 use Tests\TestCase;
 
 class DeleteCommandTest extends TestCase
 {
     private PostRepositoryInterface $postRepository;
+    private RedisCacheService $redisCacheService;
     private DeleteCommand $deleteCommand;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->postRepository = $this->createMock(PostRepositoryInterface::class);
-        $this->deleteCommand  = new DeleteCommand($this->postRepository);
+        $this->postRepository    = $this->createMock(PostRepositoryInterface::class);
+        $this->redisCacheService = $this->createMock(RedisCacheService::class);
+        $this->deleteCommand     = new DeleteCommand($this->postRepository, $this->redisCacheService);
     }
 
     public function testExecuteDeletesPostAndClearsCache(): void
@@ -29,9 +31,9 @@ class DeleteCommandTest extends TestCase
             ->method('delete')
             ->with($postId);
 
-        Redis::shouldReceive('del')
-            ->once()
-            ->with(config('redis_keys.posts'));
+        $this->redisCacheService->expects($this->once())
+            ->method('delete')
+            ->with($this->equalTo(config('redis_keys.posts')));
 
         $this->deleteCommand->execute($postId);
     }
@@ -44,9 +46,9 @@ class DeleteCommandTest extends TestCase
             ->method('delete')
             ->with($postId);
 
-        Redis::shouldReceive('del')
-            ->once()
-            ->with(config('redis_keys.posts'));
+        $this->redisCacheService->expects($this->once())
+            ->method('delete')
+            ->with($this->equalTo(config('redis_keys.posts')));
 
         $this->deleteCommand->execute($postId);
     }

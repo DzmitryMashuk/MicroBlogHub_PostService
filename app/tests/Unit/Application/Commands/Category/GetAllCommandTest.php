@@ -8,19 +8,21 @@ use App\Application\Commands\Category\GetAllCommand;
 use App\Application\DTOs\Category\CategoryListDTO;
 use App\Domain\Models\Category;
 use App\Domain\Repositories\CategoryRepositoryInterface;
-use Illuminate\Support\Facades\Redis;
+use App\Infrastructure\Services\RedisCacheService;
 use Tests\TestCase;
 
 class GetAllCommandTest extends TestCase
 {
     private CategoryRepositoryInterface $categoryRepository;
+    private RedisCacheService $redisCacheService;
     private GetAllCommand $getAllCommand;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->categoryRepository = $this->createMock(CategoryRepositoryInterface::class);
-        $this->getAllCommand      = new GetAllCommand($this->categoryRepository);
+        $this->redisCacheService  = $this->createMock(RedisCacheService::class);
+        $this->getAllCommand      = new GetAllCommand($this->categoryRepository, $this->redisCacheService);
     }
 
     public function testExecuteReturnsCachedCategories(): void
@@ -34,10 +36,10 @@ class GetAllCommandTest extends TestCase
             ],
         ];
 
-        Redis::shouldReceive('get')
-            ->once()
+        $this->redisCacheService
+            ->method('get')
             ->with(config('redis_keys.categories'))
-            ->andReturn(json_encode($categories));
+            ->willReturn(json_encode($categories));
 
         $result = $this->getAllCommand->execute();
 
@@ -56,14 +58,16 @@ class GetAllCommandTest extends TestCase
             ->method('getAll')
             ->willReturn($categoryModels);
 
-        Redis::shouldReceive('get')
-            ->once()
+        $this->redisCacheService->method('get')
             ->with(config('redis_keys.categories'))
-            ->andReturn(null);
+            ->willReturn(null);
 
-        Redis::shouldReceive('set')
-            ->once()
-            ->with(config('redis_keys.categories'), json_encode($categoryModels));
+        $this->redisCacheService->expects($this->once())
+            ->method('set')
+            ->with(
+                config('redis_keys.categories'),
+                json_encode($categoryModels)
+            );
 
         $result = $this->getAllCommand->execute();
 

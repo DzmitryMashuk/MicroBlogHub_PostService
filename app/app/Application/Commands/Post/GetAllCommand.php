@@ -6,17 +6,19 @@ namespace App\Application\Commands\Post;
 
 use App\Application\DTOs\Post\PostListDTO;
 use App\Domain\Repositories\PostRepositoryInterface;
-use Illuminate\Support\Facades\Redis;
+use App\Infrastructure\Services\RedisCacheService;
 
 class GetAllCommand
 {
-    public function __construct(private PostRepositoryInterface $postRepository)
-    {
+    public function __construct(
+        private PostRepositoryInterface $postRepository,
+        private RedisCacheService $redisCacheService
+    ) {
     }
 
     public function execute(): PostListDTO
     {
-        $posts = Redis::get(config('redis_keys.posts'));
+        $posts = $this->redisCacheService->get(config('redis_keys.posts'));
 
         if ($posts) {
             return PostListDTO::fromArray(json_decode($posts, true));
@@ -24,7 +26,7 @@ class GetAllCommand
 
         $posts = $this->postRepository->getAll();
 
-        Redis::set(config('redis_keys.posts'), json_encode($posts));
+        $this->redisCacheService->set(config('redis_keys.posts'), json_encode($posts));
 
         return new PostListDTO($posts);
     }

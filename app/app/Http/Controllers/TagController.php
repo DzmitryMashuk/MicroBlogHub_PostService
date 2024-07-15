@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 class TagController extends Controller
 {
-    public function __construct(protected TagService $tagService)
+    public function __construct(private TagService $tagService)
     {
     }
 

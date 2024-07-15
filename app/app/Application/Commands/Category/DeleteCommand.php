@@ -5,18 +5,20 @@ declare(strict_types=1);
 namespace App\Application\Commands\Category;
 
 use App\Domain\Repositories\CategoryRepositoryInterface;
-use Illuminate\Support\Facades\Redis;
+use App\Infrastructure\Services\RedisCacheService;
 
 class DeleteCommand
 {
-    public function __construct(private CategoryRepositoryInterface $categoryRepository)
-    {
+    public function __construct(
+        private CategoryRepositoryInterface $categoryRepository,
+        private RedisCacheService $redisCacheService
+    ) {
     }
 
     public function execute(int $id): void
     {
         $this->categoryRepository->delete($id);
 
-        Redis::del(config('redis_keys.categories'));
+        $this->redisCacheService->delete(config('redis_keys.categories'));
     }
 }

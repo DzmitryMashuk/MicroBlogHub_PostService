@@ -6,17 +6,19 @@ namespace App\Application\Commands\Tag;
 
 use App\Application\DTOs\Tag\TagListDTO;
 use App\Domain\Repositories\TagRepositoryInterface;
-use Illuminate\Support\Facades\Redis;
+use App\Infrastructure\Services\RedisCacheService;
 
 class GetAllCommand
 {
-    public function __construct(private TagRepositoryInterface $tagRepository)
-    {
+    public function __construct(
+        private TagRepositoryInterface $tagRepository,
+        private RedisCacheService $redisCacheService
+    ) {
     }
 
     public function execute(): TagListDTO
     {
-        $tags = Redis::get(config('redis_keys.tags'));
+        $tags = $this->redisCacheService->get(config('redis_keys.tags'));
 
         if ($tags) {
             return TagListDTO::fromArray(json_decode($tags, true));
@@ -24,7 +26,7 @@ class GetAllCommand
 
         $tags = $this->tagRepository->getAll();
 
-        Redis::set(config('redis_keys.tags'), json_encode($tags));
+        $this->redisCacheService->set(config('redis_keys.tags'), json_encode($tags));
 
         return new TagListDTO($tags);
     }

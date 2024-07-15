@@ -6,19 +6,21 @@ namespace App\Application\Commands\Post;
 
 use App\Application\DTOs\Post\PostDTO;
 use App\Domain\Repositories\PostRepositoryInterface;
-use Illuminate\Support\Facades\Redis;
+use App\Infrastructure\Services\RedisCacheService;
 
 class CreateCommand
 {
-    public function __construct(private PostRepositoryInterface $postRepository)
-    {
+    public function __construct(
+        private PostRepositoryInterface $postRepository,
+        private RedisCacheService $redisCacheService
+    ) {
     }
 
     public function execute(array $data): PostDTO
     {
         $post = $this->postRepository->create($data);
 
-        Redis::del(config('redis_keys.posts'));
+        $this->redisCacheService->delete(config('redis_keys.posts'));
 
         return new PostDTO(
             $post->id,

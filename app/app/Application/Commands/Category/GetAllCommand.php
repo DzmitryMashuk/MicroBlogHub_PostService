@@ -6,17 +6,19 @@ namespace App\Application\Commands\Category;
 
 use App\Application\DTOs\Category\CategoryListDTO;
 use App\Domain\Repositories\CategoryRepositoryInterface;
-use Illuminate\Support\Facades\Redis;
+use App\Infrastructure\Services\RedisCacheService;
 
 class GetAllCommand
 {
-    public function __construct(private CategoryRepositoryInterface $categoryRepository)
-    {
+    public function __construct(
+        private CategoryRepositoryInterface $categoryRepository,
+        private RedisCacheService $redisCacheService
+    ) {
     }
 
     public function execute(): CategoryListDTO
     {
-        $categories = Redis::get(config('redis_keys.categories'));
+        $categories = $this->redisCacheService->get(config('redis_keys.categories'));
 
         if ($categories) {
             return CategoryListDTO::fromArray(json_decode($categories, true));
@@ -24,7 +26,7 @@ class GetAllCommand
 
         $categories = $this->categoryRepository->getAll();
 
-        Redis::set(config('redis_keys.categories'), json_encode($categories));
+        $this->redisCacheService->set(config('redis_keys.categories'), json_encode($categories));
 
         return new CategoryListDTO($categories);
     }

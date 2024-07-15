@@ -8,19 +8,21 @@ use App\Application\Commands\Tag\GetAllCommand;
 use App\Application\DTOs\Tag\TagDTO;
 use App\Application\DTOs\Tag\TagListDTO;
 use App\Domain\Repositories\TagRepositoryInterface;
-use Illuminate\Support\Facades\Redis;
+use App\Infrastructure\Services\RedisCacheService;
 use Tests\TestCase;
 
 class GetAllCommandTest extends TestCase
 {
     private TagRepositoryInterface $tagRepository;
+    private RedisCacheService $redisCacheService;
     private GetAllCommand $getAllCommand;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->tagRepository = $this->createMock(TagRepositoryInterface::class);
-        $this->getAllCommand = new GetAllCommand($this->tagRepository);
+        $this->tagRepository     = $this->createMock(TagRepositoryInterface::class);
+        $this->redisCacheService = $this->createMock(RedisCacheService::class);
+        $this->getAllCommand     = new GetAllCommand($this->tagRepository, $this->redisCacheService);
     }
 
     public function testExecuteReturnsCachedTags(): void
@@ -30,10 +32,10 @@ class GetAllCommandTest extends TestCase
             ['id' => 2, 'name' => 'Tag Two'],
         ];
 
-        Redis::shouldReceive('get')
-            ->once()
+        $this->redisCacheService->expects($this->once())
+            ->method('get')
             ->with(config('redis_keys.tags'))
-            ->andReturn(json_encode($cachedTags));
+            ->willReturn(json_encode($cachedTags));
 
         $result = $this->getAllCommand->execute();
 
@@ -54,14 +56,17 @@ class GetAllCommandTest extends TestCase
             ->method('getAll')
             ->willReturn($tags);
 
-        Redis::shouldReceive('get')
-            ->once()
+        $this->redisCacheService->expects($this->once())
+            ->method('get')
             ->with(config('redis_keys.tags'))
-            ->andReturn(null);
+            ->willReturn(null);
 
-        Redis::shouldReceive('set')
-            ->once()
-            ->with(config('redis_keys.tags'), json_encode($tags));
+        $this->redisCacheService->expects($this->once())
+            ->method('set')
+            ->with(
+                config('redis_keys.tags'),
+                json_encode($tags)
+            );
 
         $result = $this->getAllCommand->execute();
 

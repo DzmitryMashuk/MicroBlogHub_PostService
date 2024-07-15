@@ -6,19 +6,21 @@ namespace Tests\Unit\Application\Commands\Category;
 
 use App\Application\Commands\Category\DeleteCommand;
 use App\Domain\Repositories\CategoryRepositoryInterface;
-use Illuminate\Support\Facades\Redis;
+use App\Infrastructure\Services\RedisCacheService;
 use Tests\TestCase;
 
 class DeleteCommandTest extends TestCase
 {
     private CategoryRepositoryInterface $categoryRepository;
+    private RedisCacheService $redisCacheService;
     private DeleteCommand $deleteCommand;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->categoryRepository = $this->createMock(CategoryRepositoryInterface::class);
-        $this->deleteCommand      = new DeleteCommand($this->categoryRepository);
+        $this->redisCacheService  = $this->createMock(RedisCacheService::class);
+        $this->deleteCommand      = new DeleteCommand($this->categoryRepository, $this->redisCacheService);
     }
 
     public function testExecuteDeletesCategoryAndClearsCache(): void
@@ -29,9 +31,9 @@ class DeleteCommandTest extends TestCase
             ->method('delete')
             ->with($categoryId);
 
-        Redis::shouldReceive('del')
-            ->once()
-            ->with(config('redis_keys.categories'));
+        $this->redisCacheService->expects($this->once())
+            ->method('delete')
+            ->with($this->equalTo(config('redis_keys.categories')));
 
         $this->deleteCommand->execute($categoryId);
     }

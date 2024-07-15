@@ -6,19 +6,21 @@ namespace App\Application\Commands\Category;
 
 use App\Application\DTOs\Category\CategoryDTO;
 use App\Domain\Repositories\CategoryRepositoryInterface;
-use Illuminate\Support\Facades\Redis;
+use App\Infrastructure\Services\RedisCacheService;
 
 class CreateCommand
 {
-    public function __construct(private CategoryRepositoryInterface $categoryRepository)
-    {
+    public function __construct(
+        private CategoryRepositoryInterface $categoryRepository,
+        private RedisCacheService $redisCacheService
+    ) {
     }
 
     public function execute(array $data): CategoryDTO
     {
         $category = $this->categoryRepository->create($data);
 
-        Redis::del(config('redis_keys.categories'));
+        $this->redisCacheService->delete(config('redis_keys.categories'));
 
         return new CategoryDTO(
             $category->id,

@@ -6,12 +6,14 @@ namespace App\Application\Commands\Tag;
 
 use App\Application\DTOs\Tag\TagDTO;
 use App\Domain\Repositories\TagRepositoryInterface;
-use Illuminate\Support\Facades\Redis;
+use App\Infrastructure\Services\RedisCacheService;
 
 class UpdateCommand
 {
-    public function __construct(private TagRepositoryInterface $tagRepository)
-    {
+    public function __construct(
+        private TagRepositoryInterface $tagRepository,
+        private RedisCacheService $redisCacheService
+    ) {
     }
 
     public function execute(int $id, array $data): TagDTO
@@ -24,7 +26,7 @@ class UpdateCommand
 
         $this->tagRepository->update($tag, $data);
 
-        Redis::del(config('redis_keys.tags'));
+        $this->redisCacheService->delete(config('redis_keys.tags'));
 
         return new TagDTO(
             $tag->id,

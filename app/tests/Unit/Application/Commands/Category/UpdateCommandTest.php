@@ -8,19 +8,21 @@ use App\Application\Commands\Category\UpdateCommand;
 use App\Application\DTOs\Category\CategoryDTO;
 use App\Domain\Models\Category;
 use App\Domain\Repositories\CategoryRepositoryInterface;
-use Illuminate\Support\Facades\Redis;
+use App\Infrastructure\Services\RedisCacheService;
 use Tests\TestCase;
 
 class UpdateCommandTest extends TestCase
 {
     private CategoryRepositoryInterface $categoryRepository;
     private UpdateCommand $updateCommand;
+    private RedisCacheService $redisCacheService;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->categoryRepository = $this->createMock(CategoryRepositoryInterface::class);
-        $this->updateCommand      = new UpdateCommand($this->categoryRepository);
+        $this->redisCacheService  = $this->createMock(RedisCacheService::class);
+        $this->updateCommand      = new UpdateCommand($this->categoryRepository, $this->redisCacheService);
     }
 
     public function testExecuteUpdatesCategoryAndReturnsCategoryDto(): void

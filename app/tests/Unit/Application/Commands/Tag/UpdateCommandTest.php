@@ -8,19 +8,21 @@ use App\Application\Commands\Tag\UpdateCommand;
 use App\Application\DTOs\Tag\TagDTO;
 use App\Domain\Models\Tag;
 use App\Domain\Repositories\TagRepositoryInterface;
-use Illuminate\Support\Facades\Redis;
+use App\Infrastructure\Services\RedisCacheService;
 use Tests\TestCase;
 
 class UpdateCommandTest extends TestCase
 {
     private TagRepositoryInterface $tagRepository;
+    private RedisCacheService $redisCacheService;
     private UpdateCommand $updateCommand;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->tagRepository = $this->createMock(TagRepositoryInterface::class);
-        $this->updateCommand = new UpdateCommand($this->tagRepository);
+        $this->tagRepository     = $this->createMock(TagRepositoryInterface::class);
+        $this->redisCacheService = $this->createMock(RedisCacheService::class);
+        $this->updateCommand     = new UpdateCommand($this->tagRepository, $this->redisCacheService);
     }
 
     public function testExecuteUpdatesTagAndReturnsTagDto(): void
@@ -52,9 +54,9 @@ class UpdateCommandTest extends TestCase
                 return $tag;
             });
 
-        Redis::shouldReceive('del')
-            ->once()
-            ->with(config('redis_keys.tags'));
+        $this->redisCacheService->expects($this->once())
+            ->method('delete')
+            ->with($this->equalTo(config('redis_keys.tags')));
 
         $result = $this->updateCommand->execute($tagId, $updateData);
 

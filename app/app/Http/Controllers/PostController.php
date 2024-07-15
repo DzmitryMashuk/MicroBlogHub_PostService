@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
-    public function __construct(protected PostService $postService)
+    public function __construct(private PostService $postService)
     {
     }
 

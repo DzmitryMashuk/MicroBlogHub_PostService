@@ -8,19 +8,21 @@ use App\Application\Commands\Post\CreateCommand;
 use App\Application\DTOs\Post\PostDTO;
 use App\Domain\Models\Post;
 use App\Domain\Repositories\PostRepositoryInterface;
-use Illuminate\Support\Facades\Redis;
+use App\Infrastructure\Services\RedisCacheService;
 use Tests\TestCase;
 
 class CreateCommandTest extends TestCase
 {
     private PostRepositoryInterface $postRepository;
+    private RedisCacheService $redisCacheService;
     private CreateCommand $createCommand;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->postRepository = $this->createMock(PostRepositoryInterface::class);
-        $this->createCommand  = new CreateCommand($this->postRepository);
+        $this->postRepository    = $this->createMock(PostRepositoryInterface::class);
+        $this->redisCacheService = $this->createMock(RedisCacheService::class);
+        $this->createCommand     = new CreateCommand($this->postRepository, $this->redisCacheService);
     }
 
     public function testExecuteCreatesPostAndReturnsPostDto(): void
@@ -48,9 +50,9 @@ class CreateCommandTest extends TestCase
             ->with($postData)
             ->willReturn($createdPost);
 
-        Redis::shouldReceive('del')
-            ->once()
-            ->with(config('redis_keys.posts'));
+        $this->redisCacheService->expects($this->once())
+            ->method('delete')
+            ->with($this->equalTo(config('redis_keys.posts')));
 
         $result = $this->createCommand->execute($postData);
 
