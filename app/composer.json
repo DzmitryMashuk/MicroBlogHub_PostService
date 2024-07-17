@@ -7,6 +7,7 @@
     "require": {
         "php": "^8.2",
         "ext-pdo": "*",
+        "darkaonline/l5-swagger": "^8.6",
         "laravel/framework": "^11.9",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
@@ -55,7 +56,8 @@
         "php-cs-fixer:fix": "vendor/bin/php-cs-fixer fix",
         "php-code-sniffer:diff": "vendor/bin/phpcs",
         "php-code-sniffer:fix": "vendor/bin/phpcbf",
-        "phpstan": "vendor/bin/phpstan analyse --memory-limit=512M"
+        "phpstan": "vendor/bin/phpstan analyse --memory-limit=512M",
+        "swagger:generate": "php artisan l5-swagger:generate"
     },
     "extra": {
         "laravel": {
